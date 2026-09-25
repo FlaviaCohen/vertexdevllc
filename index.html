@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vertex Development</title>
+<meta name="description" content="Vertex Development LLC builds fast, reliable custom web applications and websites.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #F6F7F9;
+    --surface: #FFFFFF;
+    --ink: #0F1522;
+    --muted: #586174;
+    --line: #DDE1E8;
+    --accent: #2B4EFF;
+    --accent-ink: #FFFFFF;
+    --accent-soft: #E6EBFF;
+    --display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+    --body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #0C1018; --surface: #131926; --ink: #EEF1F6; --muted: #98A2B5;
+      --line: #252D3D; --accent: #7B93FF; --accent-ink: #0C1018; --accent-soft: #1C2440;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #0C1018; --surface: #131926; --ink: #EEF1F6; --muted: #98A2B5;
+    --line: #252D3D; --accent: #7B93FF; --accent-ink: #0C1018; --accent-soft: #1C2440;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { animation: none !important; transition: none !important; } }
+  body {
+    background: var(--bg); color: var(--ink);
+    font: 400 17px/1.6 var(--body);
+    padding-inline: 20px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1120px; margin-inline: auto; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+
+  /* Nav */
+  header.nav {
+    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(10px);
+    margin-inline: -20px; padding-inline: 20px;
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-inner { display: flex; align-items: center; justify-content: space-between; gap: 24px; height: 64px; }
+  .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font: 700 19px/1 var(--display); letter-spacing: -0.01em; }
+  .brand svg { width: 26px; height: 26px; flex: none; }
+  .nav-links { display: flex; gap: 28px; font-size: 15px; }
+  .nav-links a { text-decoration: none; color: var(--muted); }
+  .nav-links a:hover { color: var(--ink); }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--ink); color: var(--bg);
+    font: 600 15px/1 var(--body); text-decoration: none;
+    padding: 12px 18px; border-radius: 999px; border: 0; cursor: pointer;
+    transition: transform .15s ease, background .15s ease;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn.accent { background: var(--accent); color: var(--accent-ink); }
+  .btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+  @media (max-width: 720px) { .nav-links { display: none; } }
+
+  /* Hero */
+  .hero { display: grid; grid-template-columns: 1.25fr 1fr; gap: 48px; align-items: center; padding-block: 96px 88px; }
+  .eyebrow { font: 500 12px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 10px; }
+  .eyebrow::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+  h1 {
+    font: 700 clamp(44px, 7vw, 84px)/0.98 var(--display);
+    letter-spacing: -0.035em; margin: 22px 0 24px; text-wrap: balance;
+  }
+  h1 em { font-style: normal; color: var(--accent); }
+  .lede { font-size: 20px; color: var(--muted); max-width: 34ch; margin: 0 0 36px; }
+  .cta-row { display: flex; flex-wrap: wrap; gap: 12px; }
+  .graph { width: 100%; max-width: 440px; justify-self: end; aspect-ratio: 1; }
+  .graph line { stroke: var(--line); stroke-width: 1.5; }
+  .graph line.hot { stroke: var(--accent); stroke-width: 2; stroke-dasharray: 240; stroke-dashoffset: 240; animation: draw 1.6s .3s ease forwards; }
+  .graph circle { fill: var(--surface); stroke: var(--ink); stroke-width: 1.5; }
+  .graph circle.apex { fill: var(--accent); stroke: var(--accent); }
+  .graph text { font: 500 11px var(--mono); fill: var(--muted); }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  @media (max-width: 860px) {
+    .hero { grid-template-columns: 1fr; padding-block: 64px 56px; }
+    .graph { justify-self: start; max-width: 300px; order: -1; }
+  }
+
+  /* Sections */
+  section { padding-block: 88px; border-top: 1px solid var(--line); }
+  .sec-head { display: grid; grid-template-columns: 1fr 1.4fr; gap: 48px; margin-bottom: 56px; align-items: end; }
+  h2 { font: 700 clamp(32px, 4.4vw, 50px)/1.04 var(--display); letter-spacing: -0.03em; margin: 14px 0 0; text-wrap: balance; }
+  .sec-head p { color: var(--muted); margin: 0; max-width: 52ch; }
+  @media (max-width: 760px) { .sec-head { grid-template-columns: 1fr; gap: 16px; margin-bottom: 40px; } section { padding-block: 64px; } }
+
+  .services { display: grid; grid-template-columns: repeat(2, 1fr); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+  .service { padding: 36px 36px 40px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); display: grid; gap: 12px; align-content: start; background: var(--surface); transition: background .2s ease; }
+  .service:hover { background: var(--accent-soft); }
+  .service .tag { font: 500 12px/1 var(--mono); color: var(--accent); letter-spacing: .04em; }
+  .service h3 { font: 700 24px/1.2 var(--display); letter-spacing: -0.015em; margin: 0; }
+  .service p { margin: 0; color: var(--muted); }
+  .service ul { list-style: none; padding: 0; margin: 8px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .service li { font: 400 13px/1 var(--mono); padding: 7px 10px; border: 1px solid var(--line); border-radius: 6px; color: var(--ink); background: var(--bg); }
+  @media (max-width: 760px) { .services { grid-template-columns: 1fr; } .service { padding: 28px 24px 32px; } }
+
+  .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; counter-reset: step; }
+  .step { display: grid; gap: 10px; align-content: start; position: relative; padding-top: 28px; }
+  .step::before { counter-increment: step; content: "0" counter(step); font: 500 13px/1 var(--mono); color: var(--accent); position: absolute; top: 0; left: 0; }
+  .step::after { content: ""; position: absolute; top: 6px; left: 36px; right: 0; height: 1px; background: var(--line); }
+  .step h3 { font: 700 21px/1.2 var(--display); margin: 0; letter-spacing: -0.01em; }
+  .step p { margin: 0; color: var(--muted); font-size: 16px; }
+  .step .dur { font: 400 12px/1 var(--mono); color: var(--muted); }
+  @media (max-width: 900px) { .steps { grid-template-columns: repeat(2, 1fr); gap: 40px 32px; } }
+  @media (max-width: 520px) { .steps { grid-template-columns: 1fr; } }
+
+  .about { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; }
+  .about p { margin: 0 0 18px; max-width: 58ch; }
+  .principles { list-style: none; margin: 0; padding: 0; display: grid; }
+  .principles li { display: grid; grid-template-columns: 150px 1fr; gap: 20px; padding-block: 18px; border-bottom: 1px solid var(--line); }
+  .principles li:first-child { border-top: 1px solid var(--line); }
+  .principles b { font: 600 15px/1.5 var(--body); }
+  .principles span { color: var(--muted); font-size: 16px; }
+  @media (max-width: 860px) { .about { grid-template-columns: 1fr; gap: 40px; } .principles li { grid-template-columns: 1fr; gap: 4px; } }
+
+  .contact { background: var(--ink); color: var(--bg); border-radius: 20px; padding: clamp(32px, 6vw, 72px); display: grid; grid-template-columns: 1.3fr 1fr; gap: 48px; align-items: end; }
+  .contact h2 { color: var(--bg); }
+  .contact p { color: color-mix(in srgb, var(--bg) 70%, var(--ink)); margin: 18px 0 0; max-width: 44ch; }
+  .mail { display: grid; gap: 12px; }
+  .mail .label { font: 500 12px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: color-mix(in srgb, var(--bg) 60%, var(--ink)); }
+  .mail .addr { font: 500 clamp(17px, 2.2vw, 22px)/1.3 var(--mono); word-break: break-all; user-select: all; }
+  .mail .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .contact .btn { background: var(--bg); color: var(--ink); }
+  .contact .btn.ghost { background: transparent; color: var(--bg); border-color: color-mix(in srgb, var(--bg) 30%, var(--ink)); }
+  @media (max-width: 860px) { .contact { grid-template-columns: 1fr; } }
+
+  footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; padding-block: 40px 48px; color: var(--muted); font-size: 14px; }
+  /* Scroll reveal: only hides content once JS has confirmed it can reveal it */
+  .reveal-on [data-reveal] {
+    opacity: 0; transform: translateY(32px);
+    transition: opacity .8s ease, transform .8s cubic-bezier(.2,.7,.2,1);
+    transition-delay: var(--d, 0ms);
+  }
+  .reveal-on [data-reveal].in { opacity: 1; transform: none; }
+  .reveal-on .service[data-reveal].in { transition: opacity .8s ease var(--d,0ms), transform .8s cubic-bezier(.2,.7,.2,1) var(--d,0ms), background .2s ease; }
+  .reveal-on .graph:not(.in) line.hot { animation-play-state: paused; }
+  @media (prefers-reduced-motion: reduce) { .reveal-on [data-reveal] { opacity: 1; transform: none; } }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="#top" aria-label="Vertex Development home">
+      <svg viewBox="0 0 26 26" aria-hidden="true"><path d="M3 22 L13 4 L23 22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><circle cx="13" cy="4" r="3" fill="#2B4EFF"/></svg>
+      Vertex Development
+    </a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="#services">Services</a>
+      <a href="#process">Process</a>
+      <a href="#about">About</a>
+    </nav>
+    <a class="btn" href="#contact">Start a project</a>
+  </div>
+</header>
+
+<main class="wrap" id="top">
+  <div class="hero">
+    <div data-reveal>
+      <div class="eyebrow">Software development studio</div>
+      <h1>Web products built to <em>perform</em> at the top.</h1>
+      <p class="lede">Vertex Development designs and builds custom web applications and websites that are fast, reliable, and easy to grow.</p>
+      <div class="cta-row">
+        <a class="btn accent" href="#contact">Book a free intro call</a>
+        <a class="btn ghost" href="#services">See services</a>
+      </div>
+    </div>
+    <svg data-reveal style="--d:150ms" class="graph" viewBox="0 0 400 400" role="img" aria-label="A graph of connected vertices rising to a highlighted apex">
+      <line x1="60" y1="330" x2="150" y2="250"/><line x1="150" y1="250" x2="120" y2="150"/>
+      <line x1="150" y1="250" x2="260" y2="230"/><line x1="260" y1="230" x2="340" y2="310"/>
+      <line x1="260" y1="230" x2="300" y2="130"/><line x1="120" y1="150" x2="200" y2="60"/>
+      <line x1="60" y1="330" x2="200" y2="340"/><line x1="200" y1="340" x2="340" y2="310"/>
+      <line class="hot" x1="60" y1="330" x2="150" y2="250"/>
+      <line class="hot" x1="150" y1="250" x2="260" y2="230"/>
+      <line class="hot" x1="260" y1="230" x2="300" y2="130"/>
+      <line class="hot" x1="300" y1="130" x2="200" y2="60"/>
+      <circle cx="60" cy="330" r="7"/><circle cx="200" cy="340" r="7"/><circle cx="340" cy="310" r="7"/>
+      <circle cx="150" cy="250" r="7"/><circle cx="260" cy="230" r="7"/><circle cx="120" cy="150" r="7"/>
+      <circle cx="300" cy="130" r="7"/><circle class="apex" cx="200" cy="60" r="11"/>
+      <text x="44" y="360">idea</text><text x="218" y="64">launch</text>
+    </svg>
+  </div>
+
+  <section id="services">
+    <div class="sec-head" data-reveal>
+      <div>
+        <div class="eyebrow">Services</div>
+        <h2>Web development, end to end.</h2>
+      </div>
+      <p>From a single marketing site to a full web application, we take the project from first sketch to production and keep it running after launch.</p>
+    </div>
+    <div class="services">
+      <article class="service" data-reveal style="--d:0ms">
+        <span class="tag">/web-apps</span>
+        <h3>Custom web applications</h3>
+        <p>Dashboards, client portals, internal tools and SaaS products built around how your business actually works.</p>
+        <ul><li>React</li><li>Next.js</li><li>TypeScript</li></ul>
+      </article>
+      <article class="service" data-reveal style="--d:120ms">
+        <span class="tag">/websites</span>
+        <h3>Business websites</h3>
+        <p>Fast, responsive sites that explain what you do clearly and turn visitors into leads. Easy for your team to update.</p>
+        <ul><li>Responsive</li><li>SEO-ready</li><li>CMS</li></ul>
+      </article>
+      <article class="service" data-reveal style="--d:0ms">
+        <span class="tag">/integrations</span>
+        <h3>APIs and integrations</h3>
+        <p>Connect your site or app to payments, CRMs, email and the other services you already rely on.</p>
+        <ul><li>REST</li><li>Node.js</li><li>Stripe</li></ul>
+      </article>
+      <article class="service" data-reveal style="--d:120ms">
+        <span class="tag">/care</span>
+        <h3>Maintenance and improvements</h3>
+        <p>Updates, performance tuning, bug fixes and new features for existing web products, on a schedule that fits you.</p>
+        <ul><li>Monitoring</li><li>Performance</li><li>Support</li></ul>
+      </article>
+    </div>
+  </section>
+
+  <section id="process">
+    <div class="sec-head" data-reveal>
+      <div>
+        <div class="eyebrow">Process</div>
+        <h2>A clear path from idea to launch.</h2>
+      </div>
+      <p>Every project follows the same four stages, so you always know what is happening, what comes next, and when you will see it.</p>
+    </div>
+    <div class="steps">
+      <div class="step" data-reveal style="--d:0ms"><h3>Discover</h3><p>We define goals, users, scope and budget, and agree on what success looks like.</p><span class="dur">~1 week</span></div>
+      <div class="step" data-reveal style="--d:120ms"><h3>Design</h3><p>Wireframes and a clickable prototype you can review before any code is written.</p><span class="dur">1–2 weeks</span></div>
+      <div class="step" data-reveal style="--d:240ms"><h3>Build</h3><p>Development in short iterations, with a live preview link you can check at any time.</p><span class="dur">2–8 weeks</span></div>
+      <div class="step" data-reveal style="--d:360ms"><h3>Launch</h3><p>Testing, deployment and handover, followed by support as your product grows.</p><span class="dur">Ongoing</span></div>
+    </div>
+  </section>
+
+  <section id="about">
+    <div class="about">
+      <div data-reveal>
+        <div class="eyebrow">About</div>
+        <h2>An independent studio that works like part of your team.</h2>
+      </div>
+      <div data-reveal style="--d:150ms">
+        <p>Vertex Development LLC is a software development company focused on the web. We work directly with founders, small businesses and larger organizations that need a dependable technical partner.</p>
+        <p>You work with the people writing the code, with no layers in between.</p>
+        <ul class="principles">
+          <li><b>Direct communication</b><span>Regular updates in plain language and a single point of contact.</span></li>
+          <li><b>Quality code</b><span>Tested, documented work that another developer can pick up easily.</span></li>
+          <li><b>You own it</b><span>Full access to your code, accounts and infrastructure from day one.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" style="border-top:0; padding-top:24px">
+    <div class="contact" data-reveal>
+      <div>
+        <div class="eyebrow" style="color:inherit; opacity:.7">Contact</div>
+        <h2>Have a project in mind?</h2>
+        <p>Tell us what you want to build. We reply within one business day with next steps and a time for a free intro call.</p>
+      </div>
+      <div class="mail">
+        <span class="label">Email</span>
+        <span class="addr" id="addr">vertexdevllc@gmail.com</span>
+        <div class="row">
+          <button class="btn" id="copy" type="button">Copy email</button>
+          <a class="btn ghost" href="mailto:vertexdevllc@gmail.com?subject=New%20project">Open email app</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap">
+  <span>© 2026 Vertex Development LLC</span>
+  <span>Custom web development</span>
+</footer>
+
+<script>
+  document.getElementById('copy').addEventListener('click', function () {
+    var btn = this, text = document.getElementById('addr').textContent;
+    function done(msg){ btn.textContent = msg; setTimeout(function(){ btn.textContent = 'Copy email'; }, 1800); }
+    try {
+      navigator.clipboard.writeText(text).then(function(){ done('Copied'); }, fallback);
+    } catch (e) { fallback(); }
+    function fallback(){
+      var r = document.createRange(); r.selectNodeContents(document.getElementById('addr'));
+      var s = window.getSelection(); s.removeAllRanges(); s.addRange(r); done('Selected — press Ctrl/Cmd+C');
+    }
+  });
+  (function () {
+    var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce || !('IntersectionObserver' in window)) return;
+    var root = document.documentElement, els = document.querySelectorAll('[data-reveal]');
+    root.classList.add('reveal-on');
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -8% 0px' });
+    els.forEach(function (el) { io.observe(el); });
+    // Safety net: never leave content hidden (e.g. thumbnails, odd viewers)
+    // (cancelled as soon as the visitor scrolls, so real visitors get the scroll effect)
+    var t = setTimeout(function () { els.forEach(function (el) { el.classList.add('in'); }); }, 4000);
+    window.addEventListener('scroll', function () { clearTimeout(t); }, { once: true, passive: true });
+  })();
+</script>
+</body>
+</html>
